@@ -15,6 +15,8 @@ type cliCommand struct {
 
 type config struct {
 	commands map[string]cliCommand
+	next     int
+	previous int
 }
 
 func startRepl(cfg *config) {
@@ -55,6 +57,11 @@ func getCommands() map[string]cliCommand {
 			name:        "exit",
 			description: "Exit the Pokedex",
 			callback:    commandExit,
+		},
+		"map": {
+			name:        "map",
+			description: "Displays the next 20 location areas",
+			callback:    commandMap,
 		},
 	}
 }
