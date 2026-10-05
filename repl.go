@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/JacksonS25/pokedex/internal/pokeapi"
 )
 
 type cliCommand struct {
@@ -14,9 +16,10 @@ type cliCommand struct {
 }
 
 type config struct {
-	commands map[string]cliCommand
-	next     int
-	previous int
+	commands         map[string]cliCommand
+	pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
 }
 
 func startRepl(cfg *config) {
@@ -60,12 +63,12 @@ func getCommands() map[string]cliCommand {
 		},
 		"map": {
 			name:        "map",
-			description: "Displays the next 20 location areas",
-			callback:    commandMap,
+			description: "Get the next page of locations",
+			callback:    commandMapf,
 		},
 		"mapb": {
 			name:        "mapb",
-			description: "Displays the previous 20 location areas",
+			description: "Get the previous page of locations",
 			callback:    commandMapb,
 		},
 	}

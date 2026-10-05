@@ -1,61 +1,40 @@
 package main
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
-	"net/http"
 )
 
-func commandMap(cfg *config) error {
-	for i := cfg.previous; i < cfg.next; i++ {
-		fullURL := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%d/", i)
-		res, err := http.Get(fullURL)
-		if err != nil {
-			return err
-		}
-		defer res.Body.Close()
-
-		var locationArea map[string]interface{}
-		decoder := json.NewDecoder(res.Body)
-		if err := decoder.Decode(&locationArea); err != nil {
-			return err
-		}
-
-		fmt.Println(locationArea["name"])
+func commandMapf(cfg *config) error {
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
+	if err != nil {
+		return err
 	}
 
-	cfg.previous = cfg.next
-	cfg.next += 20
+	cfg.nextLocationsURL = locationsResp.Next
+	cfg.prevLocationsURL = locationsResp.Previous
+
+	for _, loc := range locationsResp.Results {
+		fmt.Println(loc.Name)
+	}
 	return nil
 }
 
 func commandMapb(cfg *config) error {
-	if cfg.previous <= 21 {
-		fmt.Println("No previous location areas visited.")
-		return nil
+	if cfg.prevLocationsURL == nil {
+		return errors.New("you're on the first page")
 	}
 
-	cfg.next -= 40
-	cfg.previous -= 40
-
-	for i := cfg.previous; i < cfg.next; i++ {
-		fullURL := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%d/", i)
-		res, err := http.Get(fullURL)
-		if err != nil {
-			return err
-		}
-		defer res.Body.Close()
-
-		var locationArea map[string]interface{}
-		decoder := json.NewDecoder(res.Body)
-		if err := decoder.Decode(&locationArea); err != nil {
-			return err
-		}
-
-		fmt.Println(locationArea["name"])
+	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.prevLocationsURL)
+	if err != nil {
+		return err
 	}
 
-	cfg.previous = cfg.next
-	cfg.next += 20
+	cfg.nextLocationsURL = locationResp.Next
+	cfg.prevLocationsURL = locationResp.Previous
+
+	for _, loc := range locationResp.Results {
+		fmt.Println(loc.Name)
+	}
 	return nil
 }
