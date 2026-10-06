@@ -13,9 +13,19 @@ func commandCatch(cfg *config, name string) error {
 		return err
 	}
 
-	r := rand.Intn(resp.BaseExperience)
+	maxBaseCatchRate := 100.0
 
-	if r < resp.BaseExperience/2 {
+	catchChance := maxBaseCatchRate / float64(resp.BaseExperience)
+
+	if catchChance > 1.0 {
+		catchChance = 1.0
+	} else if catchChance < 0.05 {
+		catchChance = 0.05
+	}
+
+	r := rand.Float64()
+
+	if r > catchChance {
 		fmt.Printf("%s escaped!\n", name)
 		return nil
 	}
