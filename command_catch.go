@@ -31,6 +31,10 @@ func commandCatch(cfg *config, name string) error {
 	}
 
 	fmt.Printf("%s was caught!\n", name)
+	if _, exists := cfg.pokedex[name]; exists {
+		return nil
+	}
 	cfg.pokedex[name] = resp
+	fmt.Printf("%s has been added to your Pokedex!\n", name)
 	return nil
 }
